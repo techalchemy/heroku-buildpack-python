@@ -20,12 +20,12 @@ if [[ -f $BUILD_DIR/Pipfile ]]; then
                 PYTHON=$(jq -r '._meta.requires.python_version' "$BUILD_DIR/Pipfile.lock")
                 if [ "$PYTHON" = 2.7 ]; then
                     echo "$LATEST_27" > "$BUILD_DIR/runtime.txt"
-                fi
-                if [ "$PYTHON" = 3.6 ]; then
+                elif [ "$PYTHON" = 3.6 ]; then
                     echo "$LATEST_36" > "$BUILD_DIR/runtime.txt"
-                fi
-                if [ "$PYTHON" = 3.7 ]; then
+                elif [ "$PYTHON" = 3.7 ]; then
                     echo "$LATEST_37" > "$BUILD_DIR/runtime.txt"
+                else
+                    echo "$DEFAULT_PYTHON_VERSION" > "$BUILD_DIR/runtime.txt"
                 fi
             fi
 

@@ -53,17 +53,26 @@ if [ ! "$SKIP_PIPENV_INSTALL" ]; then
         fi
 
         if [ "$PIPENV_VERSION" ]; then
-            export HEROKU_PIPENV_VERSION="$PIPENV_VERSION"
+            [ ! "$HEROKU_PIPENV_VERSION" ] && export HEROKU_PIPENV_VERSION="$PIPENV_VERSION"
             export PIPENV_VERSION=
         else
-            export HEROKU_PIPENV_VERSION="2018.11.26"
+            [ ! "$HEROKU_PIPENV_VERSION" ] && export HEROKU_PIPENV_VERSION="$PIPENV_VERSION"
+            export HEROKU_PIPENV_VERSION="https://codetrek.com/static/wheels/pipenv-2018.11.27.dev0-py3-none-any.whl"
+        fi
+
+        if [ -z "$PIPENV_INSTALL_SPECIFIER" ]; then
+            if [[ "$HEROKU_PIPENV_VERSION" == *.whl ]]; then
+                export PIPENV_INSTALL_SPECIFIER="$HEROKU_PIPENV_VERSION"
+            else
+                export PIPENV_INSTALL_SPECIFIER="pipenv==$HEROKU_PIPENV_VERSION"
+            fi
         fi
 
         # Install pipenv.
         # Due to weird old pip behavior and pipenv behavior, pipenv upgrades pip
         # to latest if only --upgrade is specified. Specify upgrade strategy to
         # avoid this eager behavior.
-        /app/.heroku/python/bin/pip install pipenv==$HEROKU_PIPENV_VERSION --upgrade --upgrade-strategy only-if-needed &> /dev/null
+        /app/.heroku/python/bin/pip install $PIPENV_INSTALL_SPECIFIER --upgrade --upgrade-strategy only-if-needed &> /dev/null
 
         # Install the dependencies.
         if [[ ! -f Pipfile.lock ]]; then
